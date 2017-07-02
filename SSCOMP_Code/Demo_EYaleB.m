@@ -28,9 +28,6 @@
 % EYALEB_LABEL is a 1 by N vector. Each entry is the label for the
 % corresponding column in EYALEB_DATA.
 
-% load 'C:\Users\csjunxu\Desktop\SC\Datasets\YaleB_Crop.mat'   % load YaleB dataset
-% load 'C:\Users\csjunxu\Desktop\SC\Datasets\USPS_Crop.mat'   % load USPS dataset
-
 dataset = 'USPS'; % YaleB_LSR   USPS
 
 if strcmp(dataset, 'YaleB_LSR') == 1
@@ -45,7 +42,7 @@ writefilepath = ['C:/Users/csjunxu/Desktop/SC/Results/' dataset '/'];
 Repeat = 1; %number of repeations
 DR = 1;
 dim = 6;
-for K = [3 2 4 5]
+for K = [2 3 4 5 6]
     for thr = [1e-8 1e-7 1e-6 1e-5 1e-4 1e-3]
         for nSet = [2 3 5 8 10];
             n = nSet;
