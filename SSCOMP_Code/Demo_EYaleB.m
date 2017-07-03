@@ -20,11 +20,11 @@
 
 %% Settings
 
-%% Load data
+%% Load data 
 % Data is preprocessed and saved in the .mat file.
 % EYALEB_DATA is a D by N matrix. Each column is a face image and N =
 % 38 subjects * 64 images/subject = 2414. Each image is downsampled from
-% 192*168 to D = 48*42 = 2016.
+% 192*168 to D = 48*42 = 2016. 
 % EYALEB_LABEL is a 1 by N vector. Each entry is the label for the
 % corresponding column in EYALEB_DATA.
 
