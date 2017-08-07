@@ -8,9 +8,7 @@ close all
 %addpath('../lrr');
 addpath('./CodefromSSC');
 % addpath('../SSC_ADMM_v1.1');
-
- load YaleBCrop025.mat
-load 'C:\Users\csjunxu\Desktop\SC\Datasets\YaleB_Crop.mat'  
+load YaleBCrop025.mat
 results_fn =['StrSSC_Faces_tuned_gamma0_results',datestr(now,30),'.mat'];
 alpha = 20;
 gamma0 =0.1; % 0.1 for Face
