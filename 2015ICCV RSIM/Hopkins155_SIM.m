@@ -37,8 +37,7 @@ for i = 1:length(file)
 		if(foundValidData)
 			N = size(x,2);
 			F = size(x,3);
-			D = 3*F;						
-									
+			D = 3*F;	% in SSC, here is 2
 			X = reshape(permute(x(1:3,:,:),[1 3 2]),D,N);	% note here the all-one rows are also included
 						
 			[missrate, grp, bestRank, minNcutValue,W] = RSIM(X, s);			
