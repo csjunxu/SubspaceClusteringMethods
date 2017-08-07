@@ -8,7 +8,7 @@ if(nargin<3)
 	UpperD = 4;
 end
 K = max(s);
-r = LowerD*K:UpperD*K; % rank from lower bound K to upper bound 4K
+r = LowerD*K:min(UpperD*K, size(X, 1)); % rank from lower bound K to upper bound 4K
 [~,~,VR] = svd(X,'econ'); % take the right singular vector of X
 clusterLabel = {};
 approxBound = [];
