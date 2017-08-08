@@ -1,0 +1,239 @@
+Table of Contents
+=================
+
+- Introduction
+- Usage
+- Examples
+- Hardware Requirement
+- Additional Information
+
+
+Introduction
+============
+
+This directory includes sources used in the following paper:
+
+   Parallel Spectral Clustering in Distributed Systems
+   Wen-Yen Chen, Yangqiu Song, Hongjie Bai, Chih-Jen Lin, and Edward Chang
+   Accepted by IEEE Transactions on Pattern Analysis and Machine Intelligence, 2010
+
+This code has been tested under 64-bit Linux environment using MATLAB 7.4.0.287 (R2007a).
+
+You will be able to regenerate experiment results in the paper. However, results may be 
+slightly different due to the randomness, the CPU speed, and the load of your computer.
+
+In the data/ directory, we include the Corel data set and its nearest neighbors files. 
+For the RCV1 data set, due to its large size (~100MB), please check our project page for 
+download link:
+
+   http://alumni.cs.ucsb.edu/~wychen/sc.html#Download
+
+To generate nearest neighbors for RCV1, please refer to the Examples section.  Please also 
+note that we assume true/cluster labels are integers 1, 2, ..., num_labels.
+
+
+Usage
+=====
+
+1. Generate sparse symmetric distance matrix using t-nearest-neighbor method:
+
+   matlab> gen_nn_distance(data, num_neighbors, block_size, save_type)
+
+           -data:
+               N-by-D data matrix, where N is the number of data, D is the number of dimensions.
+           -num_neighbors:
+               Number of nearest neighbors.
+           -block_size:
+               Block size for partitioning the data matrix. We process the data matrix in a
+               divide-and-conquer manner to alleviate memory use. This is useful for processing
+               very large data set when physical memory is limited.
+           -save_type:
+               0 for .mat file, 1 for .txt file, 2 for both.
+               [Note] The file format of .txt is as follows:
+               data_id #_of_neighbors data_id:distance_value data_id:distance_value ...
+
+2. Run spectral clustering using a sparse similarity matrix:
+
+   matlab> [cluster_labels evd_time kmeans_time total_time] = sc(A, sigma, num_clusters);
+
+           -A:
+               N-by-N sparse symmetric distance matrix, where N is the number of data.
+           -sigma:
+               Sigma value used in similarity function S, where S_ij = exp(-dist_ij^2 / 2*sigma*sigma);
+               if sigma is 0, apply self-tunning technique, where S_ij = exp(-dist_ij^2 /2*avg_dist_i*avg_dist_j).
+           -num_clusters:
+               Number of clusters.
+
+3. Run sepctral clustering using Nystrom method with orthogonalization:
+
+   matlab> [cluster_labels evd_time kmeans_time total_time] = nystrom(data, num_samples, sigma, num_clusters);
+
+           -data:
+               N-by-D data matrix, where N is the number of data, D is the number of dimensions.
+           -num_samples:
+               Number of random samples.
+           -sigma:
+               Sigma value used in similarity function S, where S = exp(-dist^2 / 2*sigma*sigma).
+           -num_clusters:
+               Number of clusters.
+
+4. Run sepctral clustering using Nystrom method without orthogonalization:
+
+   matlab> [cluster_labels evd_time kmeans_time total_time] = nystrom_no_orth(data, num_samples, sigma, num_clusters);
+
+           -data:
+               N-by-D data matrix, where N is the number of data, D is the number of dimensions.
+           -num_samples:
+               Number of random samples.
+           -sigma:
+               Sigma value used in similarity function S, where S = exp(-dist^2 / 2*sigma*sigma).
+           -num_clusters:
+               Number of clusters.
+
+5. Run k-means clustering:
+
+   matlab> cluster_labels = k_means(data, centers, num_clusters);
+
+           -data:
+               N-by-D data matrix, where N is the number of data, D is the number of dimensions.
+           -centers:
+               K-by-D centers matrix, where K is num_clusters, or
+               'random', random initialization, or
+               [], empty matrix, orthogonal initialization
+           -num_clusters:
+               Number of clusters.
+
+6. Evaludate clustering quality using NMI (Normalized Mutual Information):
+
+   matlab> score = nmi(true_labels, cluster_labels)
+
+           -true_labels:
+               N-by-1 vector containing true labels.
+           -cluster_labels:
+               N-by-1 vector containing cluster labels.
+
+7. Evaludate clustering quality using accuracy (Hungarian algorithm):
+
+   matlab> score = accuracy(true_labels, cluster_labels)
+
+           -true_labels:
+               N-by-1 vector containing true labels.
+           -cluster_labels:
+               N-by-1 vector containing cluster labels.
+
+8. Run scripts (sparse/sparse selftune/nystrom/nystrom without orthogonalization/kmeans):
+
+   matlab> script_sc(dataset)			# spectral clustering using sparse smilarity matrix with given sigma
+
+           -dataset:
+               data set number, 1 = Corel, 2 = RCV1.
+
+   matlab> script_sc_selftune(dataset)	# spectral clustering using sparse similarity matrix with selftune sigma
+
+           -dataset:
+               data set number, 1 = Corel, 2 = RCV1.
+
+   matlab> script_nystrom(dataset)		# spectral clustering using nystrom with orthogonalization
+
+           -dataset:
+            data set number, 1 = Corel, 2 = RCV1.
+
+   matlab> script_nystrom_no_orth(dataset)		# spectral clustering using nystrom without orthogonalization
+
+           -dataset:
+               data set number, 1 = Corel, 2 = RCV1.
+
+   matlab> script_kmeans(dataset)		# k-means clustering
+
+           -dataset:
+               data set number, 1 = Corel, 2 = RCV1.
+
+
+Examples
+========
+
+1. Ggenerate sparse symmetric distance matrix using t-nearest-neighbor method:
+
+   matlab> load data/corel_feature.mat;
+   matlab> gen_nn_distance(feature, 50, 10, 2);
+
+   This generates two sparse symmetric distance files: 50_NN_sym_distance.mat and 50_NN_sym_distance.txt
+
+2. Run spectral clustering using a sparse similarity matrix:
+
+   matlab> load data/corel_50_NN_sym_distance.mat;
+   matlab> [cluster_labels evd_time kmeans_time total_time] = sc(A, 20, 18);
+   matlab> load data/corel_label.mat;
+   matlab> nmi_score = nmi(label, cluster_labels)
+   matlab> accuracy_score = accuracy(label, cluster_labels)
+
+3. Run spectral clustering using Nystrom method with orthogonalization:
+
+   matlab> load data/corel_feature.mat;
+   matlab> [cluster_labels evd_time kmeans_time total_time] = nystrom(feature, 200, 20, 18);
+   matlab> load data/corel_label.mat;
+   matlab> nmi_score = nmi(label, cluster_labels)
+   matlab> accuracy_score = accuracy(label, cluster_labels)
+
+4. Run spectral clustering using Nystrom method without orthogonalization:
+
+   matlab> load data/corel_feature.mat;
+   matlab> [cluster_labels evd_time kmeans_time total_time] = nystrom_no_orth(feature, 200, 20, 18);
+   matlab> load data/corel_label.mat;
+   matlab> nmi_score = nmi(label, cluster_labels)
+   matlab> accuracy_score = accuracy(label, cluster_labels)
+
+5. Run k-means clustering:
+
+   matlab> load data/corel_feature.mat;
+   matlab> cluster_labels = k_means(feature, 'random', 18);
+   matlab> nmi_score = nmi(label, cluster_labels)
+   matlab> accuracy_score = accuracy(label, cluster_labels)
+
+6. Run scripts for Corel data:
+
+   matlab> script_sc(1);
+   matlab> script_sc_selftune(1);
+   matlab> script_nystrom(1);
+   matlab> script_nystrom_no_orth(1);
+   matlab> script_kmeans(1);
+
+
+Hardware Requirement
+====================
+
+Note that when running Nystrom with RCV1 data (193,844 instances), it may consume 
+more than 3GB memory with 2000 random samples (193,844 * 2,000 * 8Bytes > 3GB).
+
+If you want to run with more number of samples, please make sure you have
+enough memory on your machine.
+
+
+Frequent Aasked Questions (FAQ)
+===============================
+
+Please check our project page for FAQ:
+
+http://alumni.cs.ucsb.edu/~wychen/sc.html#FAQ
+
+
+Additiona Information
+=====================
+
+If you find this tool useful, please cite it as
+
+   Parallel Spectral Clustering in Disributed Systems
+   Wen-Yen Chen, Yangqiu Song, Hongjie Bai, Chih-Jen Lin, and Edward Chang
+   Accepted by IEEE Transactions on Pattern Analysis and Machine Intelligence, 2010
+
+The bibtex format is
+
+   @Manual{Chen10,
+        author = {Wen-Yen Chen and Yangqiu Song and Hongjie Bai and Chih-Jen Lin and Edward Y. Chang},
+        journal = {Accepted by IEEE Transactions on Pattern Analysis and Machine Intelligence},
+        title =	{Parallel Spectral Clustering in Distributed Systems},
+        year = {2010},
+   }
+
+For any question, please contact Wen-Yen Chen <wychen@alumni.cs.ucsb.edu>
+and Chih-Jen Lin <cjlin@csie.ntu.edu.tw>.
